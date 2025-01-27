@@ -1,0 +1,196 @@
+# Query: Group
+# ContextLines: 1
+
+166 results - 13 files
+
+hook.php:
+
+  38  require_once PLUGIN_GSPECIALISTA_DIR . '/inc/TicketHookHandler.class.php';
+  39: require_once PLUGIN_GSPECIALISTA_DIR . '/inc/GroupHookHandler.class.php';
+  40  require_once PLUGIN_GSPECIALISTA_DIR . '/inc/RRAssignmentsEntity.class.php';
+
+README.md:
+  4  
+  5: This plugin allow to define a round robin policy to assign tickets to a group fo technicians. It permits to distribute the load of job among technicians grouped in single glpi group.
+  6: You just need to fulfill the field "Group in charge of the hardware" of the an ITIL category. Every time a ticket having such a category will be opened, the plugin will check the group and will assign the ticket to one of the member of the group continuing, the next ticket, with the other members.
+  7: The plugin adapt its behavior when the group or the members are changed.
+  8  
+  9: While setting up the plugin you can decide the categories for which the plugin should work and if adding also the same group as assignee (useful to allow other technicians to manage the queue in case of absence for example).
+  10  
+
+roundrobin.xml:
+  12          <long>
+  13:             <en>This plugin allow the assignation of a ticket using a roundrobin policy. It considers "the group in charge of the hardware" linked to a category to get the member of the group and assigning a ticket to one of them using a roundrobin policy.</en>
+  14              <it>Questo plugin permette l'assegnazione di un ticket ad un tecnico utilizzando una politica di roundrobin. Il plugin valuta il gruppo indicato nel campo "gruppo incaricato dell'hardware" nelle varie categorie, ed assegna il ticket ad uno dei membri del gruppo, ruotnado i membri ad goni nuovo ticket con una politica di tipo roundrobin</it>
+
+
+inc\config.form.class.php:
+
+   72          echo "<table class='tab_cadre_fixe'>";
+   73:         echo "<tr><th colspan='4'>" . "Enable Group Round Robin Ticket Assignment for each ITILCategory" . "</th></tr>";
+   74          echo "<tr><th colspan='4'>" . "<hr />" . "</th></tr>";
+
+   79          echo "<tr><th colspan='4'>";
+   80:         echo "Assign also to the original Group: &nbsp;&nbsp; <input type='radio' name='auto_assign_group' value='1'";
+   81:         $auto_assign_group = self::getAutoAssignGoup();
+   82:         if ($auto_assign_group) {
+   83              echo "checked='checked'";
+
+   85          echo "> Yes&nbsp;&nbsp;";
+   86:         echo "<input type='radio' name='auto_assign_group' value='0'";
+   87:         if (!$auto_assign_group) {
+   88              echo "checked='checked'";
+
+   96          echo "<tr><th colspan='4'>" . "<hr />" . "</th></tr>";
+   97:         echo "<tr><th>ITILCategory</th><th>Group</th><th>Members #</th><th>Setting</th></tr>";
+   98  
+
+  105              $category_name = $row['category_name'];
+  106:             $group_name = isset($row['group_name']) ? $row['group_name'] : "<em>No group assigned</em>";
+  107:             $num_group_members = isset($row['group_name']) ? $row['num_group_members'] : "<em>N/A</em>";
+  108              $is_active = $row['is_active'];
+  109  
+  110:             echo "<tr><td>$category_name</td><td>$group_name</td><td>$num_group_members</td>";
+  111              echo "<td>";
+
+  138          $rrAssignmentsEntity = new PluginGSpecialistARRAssignmentsEntity();
+  139:         return $rrAssignmentsEntity->getOptionAutoAssignGroup();
+  140      }
+
+  148           */
+  149:         $rrAssignmentsEntity->updateAutoAssignGroup($_POST['auto_assign_group']);
+  150  
+
+inc\GroupHookHandler.class.php:
+
+
+inc\RRAssignmentsEntity.class.php:
+
+  118                          id INT(11) NOT NULL auto_increment,
+  119:                         auto_assign_group INT(1) DEFAULT 1,
+  120                          PRIMARY KEY (id)
+
+  156                  SELECT id FROM glpi_itilcategories
+  157:                 WHERE itilcategories_id = 0 AND groups_id <> 0
+  158  EOT;
+
+  189          $sqlInsert = <<< EOT
+  190:                 INSERT INTO {$this->rrOptionsTable} (auto_assign_group) VALUES (1)
+  191  EOT;
+
+  195  
+  196:     public function getOptionAutoAssignGroup() {
+  197          $sql = <<< EOT
+  198:                 SELECT auto_assign_group FROM {$this->rrOptionsTable} LIMIT 1
+  199  EOT;
+
+  202          $resultArray = iterator_to_array($resultCollection);
+  203:         return $resultArray[0]['auto_assign_group'];
+  204      }
+  205  
+  206:     public function getGroupByItilCategory($itilCategory) {
+  207          $sql = <<< EOT
+  208:                 SELECT groups_id FROM glpi_itilcategories
+  209                  WHERE id = {$itilCategory}
+
+  213          $resultArray = iterator_to_array($resultCollection);
+  214:         $groupsId = $resultArray[0]['groups_id'];
+  215:         return $groupsId !== 0 ? $groupsId : false;
+  216      }
+  217  
+  218:     public function updateAutoAssignGroup($autoAssignGroup) {
+  219          $sqlUpdate = <<< EOT
+  220                  UPDATE {$this->rrOptionsTable}
+  221:                 SET auto_assign_group = {$autoAssignGroup}
+  222                  WHERE id = 1
+
+  283       * 
+  284:      * @return array of array (id, itilcategories_id, category_name, groups_id, group_name, num_group_members, is_active)
+  285       */
+
+  291                      c.completename AS category_name,
+  292:                     c.groups_id,
+  293:                     g.completename AS group_name,
+  294                      (SELECT 
+
+  296                          FROM
+  297:                             glpi_groups_users gu
+  298                          WHERE
+  299:                             gu.groups_id = g.id) AS num_group_members,
+  300                      a.is_active
+
+  305                          JOIN
+  306:                     glpi_groups g ON g.id = c.groups_id
+  307  EOT;
+
+  312                      c.completename AS category_name,
+  313:                     c.groups_id,
+  314:                     g.completename AS group_name,
+  315                      (SELECT 
+
+  317                          FROM
+  318:                             glpi_groups_users gu
+  319                          WHERE
+  320:                             gu.groups_id = g.id) AS num_group_members,
+  321                      a.is_active
+
+  326                          LEFT JOIN
+  327:                     glpi_groups g ON g.id = c.groups_id
+  328  EOT;
+
+inc\TicketHookHandler.class.php:
+   61  
+   62:     public function getGroupsUsersByCategory($categoryId) {
+   63          $sql = <<< EOT
+
+   66                      c.completename AS CategoryCompleteName,
+   67:                     g.name AS 'Group',
+   68:                     gu.id AS UserGroupId,
+   69                      gu.users_id AS UserId,
+
+   75                          JOIN
+   76:                     glpi_groups g ON c.groups_id = g.id
+   77                          JOIN
+   78:                     glpi_groups_users gu ON gu.groups_id = g.id
+   79                          JOIN
+
+   96          }
+   97:         $categoryGroupMembers = $this->getGroupsUsersByCategory($this->getTicketCategory($item));
+   98:         if (count($categoryGroupMembers) === 0) {
+   99              /**
+  100:              * category w/o group, or group w/o users
+  101               */
+
+  107           */
+  108:         if ($newAssignmentIndex > (count($categoryGroupMembers) - 1)) {
+  109:             $newAssignmentIndex = $newAssignmentIndex % count($categoryGroupMembers);
+  110:             if ($newAssignmentIndex > (count($categoryGroupMembers) - 1)) {
+  111                  $newAssignmentIndex = 0;
+
+  119          $ticketId = $this->getTicketId($item);
+  120:         $userId = $categoryGroupMembers[$newAssignmentIndex]['UserId'];
+  121          $this->setAssignment($ticketId, $userId, $itilcategoriesId);
+
+  141          /**
+  142:          * remove any previous group assignment
+  143           */
+  144:         $sqlDelete_glpi_groups_tickets = <<< EOT
+  145:             DELETE FROM glpi_groups_tickets 
+  146              WHERE tickets_id = {$ticketId};
+
+  148  
+  149:         PluginGSpecialistALogger::addWarning(__FUNCTION__ . ' - sqlDelete_glpi_groups_tickets: ' . $sqlDelete_glpi_groups_tickets);
+  150:         $this->DB->queryOrDie($sqlDelete_glpi_groups_tickets, $this->DB->error());
+  151  
+
+  161          /**
+  162:          * if auto group assign is enabled assign the group too
+  163           */
+  164:         if ($this->rrAssignmentsEntity->getOptionAutoAssignGroup() === 1) {
+  165:             $groups_id = $this->rrAssignmentsEntity->getGroupByItilCategory($itilcategoriesId);
+  166:             $sqlInsert_glpi_tickets_groups = <<< EOT
+  167:                     INSERT INTO glpi_groups_tickets (tickets_id, groups_id, type) VALUES ({$ticketId}, {$groups_id}, 2)
+  168  EOT;
+  169:             PluginGSpecialistALogger::addWarning(__FUNCTION__ . ' - sqlInsert_glpi_tickets_groups: ' . $sqlInsert_glpi_tickets_groups);
+  170:             $this->DB->queryOrDie($sqlInsert_glpi_tickets_groups, $this->DB->error());
+  171          }

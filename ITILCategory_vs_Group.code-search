@@ -1,0 +1,122 @@
+# Query: ITILCategory
+# ContextLines: 1
+
+42 results - 7 files
+
+hook.php:
+  47          'Ticket' => new PluginGSpecialistATicketHookHandler(),
+  48:         'ITILCategory' => new PluginGSpecialistAITILCategoryHookHandler()
+  49      ];
+
+setup.php:
+  32   * PluginGSpecialistA PluginGSpecialistA
+  33:  * ITILCategoryHookHandler.class GroupHookHandler.class
+  34   */
+
+inc\config.class.php:
+  56              'Ticket' => 'plugin_GSPECIALISTA_hook_item_add_handler',
+  57:             'ITILCategory' => 'plugin_GSPECIALISTA_hook_item_add_handler'
+  58          ];
+
+  69              'Ticket' => 'plugin_GSPECIALISTA_hook_item_delete_handler',
+  70:             'ITILCategory' => 'plugin_GSPECIALISTA_hook_item_delete_handler'
+  71          ];
+
+  73              'Ticket' => 'plugin_GSPECIALISTA_hook_item_purge_handler',
+  74:             'ITILCategory' => 'plugin_GSPECIALISTA_hook_item_purge_handler'
+  75          ];
+
+inc\config.form.class.php:
+   72          echo "<table class='tab_cadre_fixe'>";
+   73:         echo "<tr><th colspan='4'>" . "Enable Group Round Robin Ticket Assignment for each ITILCategory" . "</th></tr>";
+   74          echo "<tr><th colspan='4'>" . "<hr />" . "</th></tr>";
+
+   96          echo "<tr><th colspan='4'>" . "<hr />" . "</th></tr>";
+   97:         echo "<tr><th>ITILCategory</th><th>Group</th><th>Members #</th><th>Setting</th></tr>";
+   98  
+
+  154          foreach (self::getSettings() as $row) {
+  155:             $itilCategoryId = $_POST["itilcategories_id_{$row['id']}"];
+  156              $newValue = $_POST["is_active_{$row['id']}"];
+  157:             $rrAssignmentsEntity->updateIsActive($itilCategoryId, $newValue);
+  158          }
+
+inc\GroupHookHandler.class.php:
+  28   * -------------------------------------------------------------------------
+  29:  * ITILCategory Group
+  30   * 
+  31   */
+  32: class PluginGSpecialistAITILCategoryHookHandler extends CommonDBTM implements IPluginGSpecialistAHookItemHandler {
+  33  
+
+  35          PluginGSpecialistALogger::addWarning(__METHOD__ . " - Item Type: " . $item->getType());
+  36:         if ($item->getType() !== 'ITILCategory') {
+  37              return;
+  38          }
+  39:         PluginGSpecialistALogger::addWarning(__METHOD__ . " - ITILCategoryId: " . $this->getItilCategoryId($item));
+  40          $rrAssignmentsEntity = new PluginGSpecialistARRAssignmentsEntity();
+  41:         $rrAssignmentsEntity->insertItilCategory($this->getItilCategoryId($item));
+  42      }
+  43  
+  44:     protected function getItilCategoryId(CommonDBTM $item) {
+  45          return $item->fields['id'];
+
+  49          PluginGSpecialistALogger::addWarning(__METHOD__ . " - Item Type: " . $item->getType());
+  50:         if ($item->getType() !== 'ITILCategory') {
+  51              return;
+  52          }
+  53:         PluginGSpecialistALogger::addWarning(__METHOD__ . " - ITILCategoryId: " . $this->getItilCategoryId($item));
+  54          $rrAssignmentsEntity = new PluginGSpecialistARRAssignmentsEntity();
+  55:         $rrAssignmentsEntity->updateIsActive($this->getItilCategoryId($item), 0);
+  56      }
+
+  59          PluginGSpecialistALogger::addWarning(__METHOD__ . " - Item Type: " . $item->getType());
+  60:         if ($item->getType() !== 'ITILCategory') {
+  61              return;
+  62          }
+  63:         PluginGSpecialistALogger::addWarning(__METHOD__ . " - ITILCategoryId: " . $this->getItilCategoryId($item));
+  64          $rrAssignmentsEntity = new PluginGSpecialistARRAssignmentsEntity();
+  65:         $rrAssignmentsEntity->deleteItilCategory($this->getItilCategoryId($item));
+  66      }
+
+inc\RRAssignmentsEntity.class.php:
+   56          $this->truncateTable();
+   57:         $this->insertAllItilCategory();
+   58          $this->insertOptions();
+
+  153  
+  154:     protected function insertAllItilCategory() {
+  155          $sqlCategory_0 = <<< EOT
+
+  164          $itilCategoriesArray = iterator_to_array($itilCategoriesCollection);
+  165:         foreach ($itilCategoriesArray as $itilCategory) {
+  166:             $this->insertItilCategory($itilCategory['id']);
+  167          }
+
+  169  
+  170:     public function insertItilCategory($itilCategory) {
+  171          PluginGSpecialistALogger::addWarning(__FUNCTION__ . ' - entered...');
+
+  176          $sqlInsert = <<< EOT
+  177:                 INSERT INTO {$this->rrAssignmentTable} (itilcategories_id) VALUES ({$itilCategory})
+  178  EOT;
+
+  205  
+  206:     public function getGroupByItilCategory($itilCategory) {
+  207          $sql = <<< EOT
+  208                  SELECT groups_id FROM glpi_itilcategories
+  209:                 WHERE id = {$itilCategory}
+  210  EOT;
+
+  227  
+  228:     public function deleteItilCategory($itilCategory) {
+  229          PluginGSpecialistALogger::addWarning(__FUNCTION__ . ' - entered...');
+
+  234          $sqlDelete = <<< EOT
+  235:                 DELETE FROM {$this->rrAssignmentTable} WHERE itilcategories_id = {$itilCategory}
+  236  EOT;
+
+inc\TicketHookHandler.class.php:
+  164          if ($this->rrAssignmentsEntity->getOptionAutoAssignGroup() === 1) {
+  165:             $groups_id = $this->rrAssignmentsEntity->getGroupByItilCategory($itilcategoriesId);
+  166              $sqlInsert_glpi_tickets_groups = <<< EOT
