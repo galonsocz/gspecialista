@@ -35,7 +35,7 @@ class PluginGSpecialistAConfig {
     public static $PLUGIN_GSPECIALISTA_VERSION = '1.0.1';
     public static $PLUGIN_GSPECIALISTA_AUTHOR = '<a href="https://www.initiativa.it/glpi.php" target="_blank">initiativa s.r.l.</a>';
     public static $PLUGIN_GSPECIALISTA_LICENSE = 'GPLv3';
-    public static $PLUGIN_GSPECIALISTA_HOME_PAGE = 'https://github.com/initiativa/roundrobin/';
+    public static $PLUGIN_GSPECIALISTA_HOME_PAGE = 'https://github.com/galonsocz/gspecialista/';
     public static $PLUGIN_GSPECIALISTA_MIN_GLPI_VERSION = '9.5.5';
     public static $PLUGIN_GSPECIALISTA_GLPI_VERSION_ERROR = "This plugin requires GLPI >= 9.5.5 and GLPI <= 10.0.99";
     public static $PLUGIN_GSPECIALISTA_MAX_GLPI_VERSION = '10.0.99';

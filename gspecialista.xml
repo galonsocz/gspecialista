@@ -3,21 +3,21 @@
     <name>Group Specialist Assignment</name>
     <key>gspecialista</key>
     <state>stable</state>
-    <logo>https://raw.githubusercontent.com/initiativa/roundrobin/master/pics/roundrobin-logo.png</logo>
+    <logo>https://raw.githubusercontent.com/galonsocz/gspecialista/master/pics/roundrobin-logo.png</logo>
     <description>
         <short>
             <en>This plugin allow the assignation of a ticket using a roundrobin policy.</en>
-            <it>Questo plugin permette l'assegnazione di un ticket ad un tecnico utilizzando una politica di roundrobin.</it>
+            <es>Este complemento permite la asignación de un folio utilizando una politica de roundrobin.</it>
         </short>
         <long>
             <en>This plugin allow the assignation of a ticket using a roundrobin policy. It considers "the group in charge of the hardware" linked to a category to get the member of the group and assigning a ticket to one of them using a roundrobin policy.</en>
             <it>Questo plugin permette l'assegnazione di un ticket ad un tecnico utilizzando una politica di roundrobin. Il plugin valuta il gruppo indicato nel campo "gruppo incaricato dell'hardware" nelle varie categorie, ed assegna il ticket ad uno dei membri del gruppo, ruotnado i membri ad goni nuovo ticket con una politica di tipo roundrobin</it>
         </long>
     </description>
-    <homepage>https://github.com/initiativa/roundrobin</homepage>
-    <download>https://github.com/initiativa/roundrobin/releases</download>
-    <issues>https://github.com/initiativa/roundrobin/issues</issues>
-    <readme>https://raw.githubusercontent.com/initiativa/roundrobin/master/README.md</readme>
+    <homepage>https://github.com/galonsocz/gspecialista</homepage>
+    <download>https://github.com/galonsocz/gspecialista/releases</download>
+    <issues>https://github.com/galonsocz/gspecialista/issues</issues>
+    <readme>https://raw.githubusercontent.com/galonsocz/gspecialista/master/README.md</readme>
     <authors>
         <author>Alonso Cárdenas / pemex srl</author>
     </authors>
@@ -26,7 +26,7 @@
             <num>1.0.1</num>
             <compatibility>9.5</compatibility>
             <compatibility>~10.0</compatibility>
-            <download_url>https://github.com/initiativa/roundrobin/releases/download/1.0.1/roundrobin-1.0.1.tar.gz</download_url>
+            <download_url>https://github.com/galonsocz/gspecialista/releases/download/1.0.0/gspecialista-1.0.0.tar.gz</download_url>
         </version>
     </versions>
     <langs>
@@ -39,10 +39,10 @@
             <tag>Helpdesk</tag>
             <tag>Technician</tag>
         </en>
-        <it>
-            <tag>Chiamata</tag>
-            <tag>Assistenza</tag>
+        <es>
+            <tag>Folio</tag>
+            <tag>Mesa de ayuda</tag>
             <tag>Tecnico</tag>
-        </it>
+        </es>
     </tags>
 </root>
